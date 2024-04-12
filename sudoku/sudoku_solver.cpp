@@ -194,6 +194,8 @@ void update(vector<vector<int> > &board, vector<vector<unordered_set<int> > > &p
 
 /*
 easy_picks_row
+helper function for easy_picks()
+checks the row to find potential values that appear only once in that row.
 */
 bool easy_picks_row(int row_num, vector<vector<int> > &board, vector<vector<unordered_set<int> > > &potential){
     bool change = false;
@@ -221,6 +223,11 @@ bool easy_picks_row(int row_num, vector<vector<int> > &board, vector<vector<unor
     return change;
 }
 
+/*
+easy_picks_col
+helper function for easy_picks()
+checks the col to find potential values that appear only once in that col.
+*/
 bool easy_picks_col(int col_num, vector<vector<int> > &board, vector<vector<unordered_set<int> > > &potential){
     bool change = false;
     int avail[9] = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
@@ -247,6 +254,11 @@ bool easy_picks_col(int col_num, vector<vector<int> > &board, vector<vector<unor
     return change;
 }
 
+/*
+easy_picks_sector
+helper function for easy_picks()
+checks each sector to find potential values that appear only once in that sector.
+*/
 bool easy_picks_sector(int sect_num, vector<vector<int> > &board, vector<vector<unordered_set<int> > > &potential){
     bool change = false;
     int avail_r[9] = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
@@ -279,10 +291,10 @@ bool easy_picks_sector(int sect_num, vector<vector<int> > &board, vector<vector<
 }
 /*
 easy_picks : fills in information that is easily determined by process of elim or uniqueness
-1) check each row for unique numbers and fill them in + update potentials
-2) check each col for unique numbers and fill them in + update potentials
+1) if there is a tile with only 1 potential, fill it in
+2) check each row for unique numbers and fill them in + update potentials
+3) check each col for unique numbers and fill them in + update potentials
 3) check each sector for unique numbers and fill them in + update potentials
-4) call potentials_elim
 */
 void easy_picks(vector<vector<int> > &board, vector<vector<unordered_set<int> > > &potential){
     bool change = true;
@@ -312,9 +324,6 @@ void easy_picks(vector<vector<int> > &board, vector<vector<unordered_set<int> > 
         for(int sect = 0; sect < 9; sect++){
             change = change || easy_picks_sector(sect, board, potential);
         }
-        // cout << "easy pick:" << endl;
-        // print_board(board);
-        // cout << endl;
     }
 }
 
@@ -331,8 +340,8 @@ void set_finder(){
 }
 
 /*
-is_full : checks if the board is full
-1) check if there are no 0s on board
+is_full : 
+checks if the board is full (no 0s on board)
 */
 bool is_full(vector<vector<int> > &board){
     for(int i = 0; i < 9; i++){
@@ -346,7 +355,8 @@ bool is_full(vector<vector<int> > &board){
 }
 
 /*
-impossible check
+is_possible :
+checks if there is an empty tile with no potential values. This means the board has no solution
 */
 bool is_possible(vector<vector<int> > &board, vector<vector<unordered_set<int> > > &potential){
     for(int i = 0; i < 9; i++){
@@ -360,12 +370,12 @@ bool is_possible(vector<vector<int> > &board, vector<vector<unordered_set<int> >
 }
 
 /*
-is_solved : checks if the full and solved
+is_solved : checks if the board is full and solved
 1) check if board is full by calling is_full
 2) check each row
 3) check each col
 4) check each sector
-5) if true, set global to local, else, return false
+5) return true if solved, else false
 */
 bool is_solved(vector<vector<int> > &board){
     if(is_full(board) == false){
@@ -415,13 +425,13 @@ bool is_solved(vector<vector<int> > &board){
 solve : finds the solution if there is one
 uses DFS (recursion) using the potentials. 
 Base cases :  
-1) the tile is filled, return recursion
-2) the board is full, return is_solved
+1) the current tile is the last tile, return is_solved. (print solution if solved)
+2) the tile is filled, return recursion of next tile
 recursion process:
-- each recursion iterates the board. 
+- each recursion iterates the board. (left to right, top to bottom)
 - for each empty tile try the first potential, then recurse. 
 - if false is returned, try the next potential
-- if true is returned, return true (global should be answer)
+- if true is returned, return true 
 */
 bool solve(int ind, vector<vector<int> > &board, vector<vector<unordered_set<int> > > &potential){
     int r = ind/9;
@@ -467,6 +477,7 @@ bool solve(int ind, vector<vector<int> > &board, vector<vector<unordered_set<int
     }
 }
 
+
 int main(){
     vector<vector<int> > board ( 9, vector<int> (9,0));
 
@@ -481,5 +492,6 @@ int main(){
 
     if(solve(0, board, potential) == false){
         cout << "No solution found" << endl;
-    };
+    }
+    return 0;
 }
